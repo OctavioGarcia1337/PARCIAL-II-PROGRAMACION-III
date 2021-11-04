@@ -2,11 +2,17 @@
 #include <fstream>
 #include <sstream>
 #include "string.h"
-//#include "/Arbol-master/ArbolBinarioAVL.h"
+#include "Pila.h"
 #include <vector>
+#include <list>
 
 using namespace std;
 
+/**
+ * printArr Imprime el arreglo en pantalla.
+ * @tparam *arr Arreglo que se desea imprimir.
+ * @tparam size Tamaño del arreglo que se desea imprimir.
+ */
 void printArr(int *arr, int size)
 {
   cout << "[ ";
@@ -16,33 +22,12 @@ void printArr(int *arr, int size)
   }
   cout << "]" << endl;
 }
-bool fecha(string fecha,string  base){           //0000-00-00
-    int año,mes,dia,baño,bmes,bdia;
 
-    stringstream intaño(fecha.substr (0,4));
-    stringstream intmes(fecha.substr (5,2));
-    stringstream intdia(fecha.substr (8,2));
-	intaño >> año;
-    intmes >> mes;
-    intdia >> dia;
 
-    stringstream intbaño(base.substr (0,4));
-    stringstream intbmes(base.substr (5,2));
-    stringstream intbdia(base.substr (8,2));
-	intbaño >> baño;
-    intbmes >> bmes;
-    intbdia >> bdia;
-
-    if(año<=baño){
-        if(mes<=bmes){
-            if(dia<=bdia){
-                return true;
-            }
-        }
-    }
-    return false;
-
-}
+/**
+ * Provincias_identado Se compara la provincia según el nombre y se le asigna un valor int que corresponde a la ID.
+ * @tparam dato Nombre de la provincia.
+ */
 int Provincias_identado(string dato)
 {
     switch (dato.size())
@@ -132,8 +117,11 @@ int Provincias_identado(string dato)
     
 }
 
-string Provincias_nombre(int dato)
-{
+/**
+ * Provincias_nombre Se pasa el nombre de la provincia según la ID (está no corresponde al archivo .csv).
+ * @tparam dato ID de la provincia (la ID no corresponde al archivo .csv).
+ */
+string Provincias_nombre(int dato){
     switch (dato)
             {
                 case 1:     
@@ -212,8 +200,14 @@ string Provincias_nombre(int dato)
         
     return "404 - CODIGO DE PROVINCIA NO VALIDO";
 }
-string Alfabetico(int dato)
-{
+
+
+
+/**
+ * Alfabetico: Ordena alfabeticamente las provincias
+ * @tparam dato ID de la provincia (id propia no corresponde al archivo .csv).
+ */
+string Alfabetico(int dato){
     switch (dato)
             {
                 case 3:     
@@ -293,11 +287,50 @@ string Alfabetico(int dato)
     return "404 - CODIGO DE PROVINCIA NO VALIDO";
 }
 
-void quickSort(int *arr,int *arr2, int inicio, int fin)
-{
-  int i, j, medio,orden[]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  int pivot, aux,aux2;
+/**
+ * fechas. Convierte la fecha string a un valor int.
+ * @tparam fecha Fecha pasada en valor string formato XXXX-XX-XX.
+ */
+int  fechas(string fecha){
 
+    int año,mes,dia;
+
+    stringstream intaño(fecha.substr (0,4));
+    stringstream intmes(fecha.substr (5,2));
+    stringstream intdia(fecha.substr (8,2));
+	intaño >> año;
+    intmes >> mes;
+    intdia >> dia;
+    int valormes=0;
+    int meses[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
+    /*if(año%400==0)
+    {
+    meses[1]=29;
+
+    }
+    else{
+        meses[1]=28;
+    }*/
+    for(int i=0; i<12; i++){
+        valormes+=meses[i];
+    }
+    return año*365 +  valormes +  dia;
+}
+
+
+/**
+ * quickSort
+ * @tparam arr Arreglo a ordenar.
+ * @tparam arr2 Arreglo auxiliar donde se mueve junto con el dato la posicion del nombre respectivo .
+ * @tparam inicio Donde inicia el arreglo.
+ * @tparam fin Donde termina el arreglo.
+ */
+void quickSort(int *arr, string *arr2, int inicio, int fin)
+{
+ 
+  int i, j, medio;
+  int pivot, aux;
+  string aux2;
   medio = (inicio + fin) / 2;
   pivot = arr[medio];
   i = inicio;
@@ -329,55 +362,75 @@ void quickSort(int *arr,int *arr2, int inicio, int fin)
     quickSort(arr,arr2, i, fin);}
 }
 
+/**
+ * quickSort2
+ * @tparam arr Arreglo a ordenar.
+ * @tparam arr2 Arreglo auxiliar donde se guarda referencia numerica del cambio realizado en el arreglo arr.
+ * @tparam inicio Donde inicia el arreglo.
+ * @tparam fin Donde termina el arreglo.
+ */
+void quickSort2(int *arr, int *arr2, int inicio, int fin)
+{
+ 
+  int i, j, medio;
+  int pivot, aux;
+  int aux2;
+  medio = (inicio + fin) / 2;
+  pivot = arr[medio];
+  i = inicio;
+  j = fin;
+
+  do
+  {
+    while (arr[i] < pivot)
+      i++;
+    while (arr[j] > pivot)
+      j--;
+
+    if (i <= j)
+    {
+      aux = arr[i];
+      aux2 = arr2[i];
+      arr[i] = arr[j];
+      arr2[i] = arr2[j];
+      arr[j] = aux;
+      arr2[j] = aux2;
+      i++;
+      j--;
+    }
+  } while (i <= j);
+
+  if (j > inicio){
+    quickSort2(arr,arr2, inicio, j);}
+  if (i < fin){
+    quickSort2(arr,arr2, i, fin);}
+}
 
 
+/**
+ * identadora: Clasifica las provincias.
+ * @tparam dato Nombre de la Provincia.
+ */
 int identadora(string dato){
+    
     int valor;
-    for (int i = 0; i < 100; i++){
-            if(dato==to_string(i))
-            {
-                valor=i;
-                break;
-            }
-        }
-        for (int i = 1; i < 11; i++)
+    stringstream valorr(dato);
+    valorr>>valor;
+    for (int i = 1; i < 11; i++)
+    {
+        if ((valor<=(i*10)) && ((i-1)*10<valor))
         {
-            if ((valor<=(i*10)) && ((i-1)*10<valor))
-            {
-                return i; 
-            }  
-        }
+            return i; 
+        }  
+    }
     return 0;  
 }
 
-void chopCSV(string fileName, int lines){
-    
-    string newName = fileName.substr(0, fileName.find(".csv"));
-    newName += to_string(lines) + ".csv";
-
-    fstream fin, fout;
-    fin.open("./" + fileName, ios::in);
-    fout.open("./" + newName, ios::out);
-
-    string line, word;
-    for (int i = 0; i < lines; i++)
-    {
-        getline(fin, line);
-        fout << line << "\n";
-    }
-}
-
-/* ESTADISTICA
-*       [R]     Cantidad total de muestras.
-*       [R]     Cantidad total de infectados.
-*       [R]     Cantidad total de fallecidos.
-*       [R]     % de infectados sobre muestras.
-*       [R]     % de fallecidos sobre infectados.
-*       [R]     Cantidad de infectados ( rango de 10 años ).
-*       [R]     Fallecidos de muertes ( rango de 10 años ).
-*/
-
-void exploreCSV(string fileName)
+/**
+ * estad: Mostrará la información estadística.
+ * @tparam fileName Nombre del Archivo .csv (debe estar en la misma carpeta que el .exe)
+ */
+void estad(string fileName)
 {
     int Infectados_Rango_Etario[] ={0,0,0,0,0,0,0,0,0,0,0,0}; // 11
     int  Fallecidos_Rango_Etario[] ={0,0,0,0,0,0,0,0,0,0,0,0}; // 11
@@ -413,10 +466,7 @@ void exploreCSV(string fileName)
 
         if (row[20].compare("Confirmado") == 0 || total==0)
         {
-            /*for (int i = 0; i < nColumns; i++)
-            {
-                cout << row[colsOfInterest[i]] << " ";
-            }*/
+
             confirmed++;
             Infectados_Rango_Etario[identadora(row[2])]++;
             if (row[14].compare("SI") == 0 || total==0)
@@ -425,7 +475,6 @@ void exploreCSV(string fileName)
                 ddd++;
                 fallecidos++;
             }
-            //cout << endl;
         }
     }
     float porcInfectadosMuestras = ((confirmed+0.0 )/ (total+0.0)) * 100;
@@ -449,6 +498,12 @@ void exploreCSV(string fileName)
 
 }
 
+
+/**
+ * p_muertes: Mostrará las n provincias con más muertes ordenadas de más a menos. Si n no es pasado, se mostrarán todas las provincias.
+ * @tparam fileName Nombre del Archivo .csv (debe estar en la misma carpeta que el .exe)
+ * @tparam prov Valor que de ser introducido por el usuario equivale a la cantidad de provincias que se van a mostrar, si no fue introducido se muestran todas las provincias que tengan muertes. [Provincias con 0 muertes no se muestran para que sea mas facil leer los datos.]
+ */
 void p_muertes(string fileName, string prov){
     
     int colsOfInterest[] = {0, 2, 3, 12, 13, 14, 17, 20}; // [17] PROV.ID - [20] CASOS.CONFIRM - //   0, 2, 3, 12, 13, 14
@@ -488,34 +543,32 @@ void p_muertes(string fileName, string prov){
                 arregloprovincias[Provincias_identado(dato)]++;
             }
              
-            //arregloprovinciascopio[Provincias_identado(dato)]++;    
         }
     }
-    int valor=0;
-    for (int i = 0; i < 100; i++){
-            if(prov==to_string(i))
-            {
-                valor=i;
-                
-                break;
-            }
-        }
-    
+
+    int valor;
+    stringstream valorr(prov);
+    valorr>>valor;
     ;
-    quickSort(arregloprovincias,arregloprovinciascopio, 0, 23);
+    quickSort2(arregloprovincias,arregloprovinciascopio, 0, 23);
     
     cout <<endl<<"Provincias ordenadas por Fallecidos: " <<endl<<endl;
-    for (int i = 23; i > 23-valor; i--){ //signos re-invertidos
+    for (int i = 23; i > 23-valor; i--){ 
         cout <<Provincias_nombre(arregloprovinciascopio[i])<< " Cantidad de Fallecidos: "<<arregloprovincias[i]<<endl;
     }
 }
 
+/**
+ * p_casos: Mostrará las n primeras provincias con más contagios ordenadasde más a menos. Si n no es pasado, se mostrarán todas las provincias.
+ * @tparam fileName Nombre del Archivo .csv (debe estar en la misma carpeta que el .exe)
+ * @tparam prov Valor que de ser introducido por el usuario equivale a la cantidad de provincias que se van a mostrar, si no fue introducido se muestran todas las provincias
+ */
 void p_casos(string fileName, string prov){
     
     int colsOfInterest[] = {0, 2, 3, 12, 13, 14, 17, 20}; // [17] PROV.ID - [20] CASOS.CONFIRM - //   0, 2, 3, 12, 13, 14
     int nColumns = sizeof(colsOfInterest) / sizeof(colsOfInterest[0]);
-    int      arregloprovincias[]={0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //25
-    int arregloprovinciascopio[]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22}; //25
+    int      arregloprovincias[]={0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0}; //25
+    string arregloprovinciascopio[]= { "Mendoza", "Chaco", "Jujuy", "Salta", "CABA", "Formosa", "Chubut", "Neuquén", "La Pampa", "La Rioja","Misiones","San Juan","Buenos Aires","Santa Fe","Catamarca","Córdoba","Corrientes","Entre Ríos","Santa Cruz","Santiago del Estero","Tucumán","San Luis", "Río Negro", "404 - CODIGO DE PROVINCIA NO VALIDO", "Tucumán"}; //25
 
     fstream fin;
     fin.open("./" + fileName, ios::in);
@@ -547,44 +600,52 @@ void p_casos(string fileName, string prov){
             string dato=row[5];                         //Columna de Provincias
         
             arregloprovincias[Provincias_identado(dato)]++; 
-            //arregloprovinciascopio[Provincias_identado(dato)]++;    
         }
     }
-    int valor=0;
-    for (int i = 0; i < 100; i++){
-            if(prov==to_string(i))
-            {
-                valor=i;
-                
-                break;
-            }
+    int valor;
+    stringstream valorr(prov);
+    valorr  >>valor;
+    for (int i = 0; i < 24; i++){
+        
+            cout<<Provincias_nombre(i)<<endl;
         }
-    
     quickSort(arregloprovincias,arregloprovinciascopio, 0, 23);
     
     cout <<endl<<"Provincias ordenadas por casos: " <<endl<<endl;
     for (int i = 23; i > 23-valor; i--){ //signos re-invertidos
-        cout <<Provincias_nombre(arregloprovinciascopio[i])<< " Cantidad de casos: "<<arregloprovincias[i]<<endl;
+        cout <<arregloprovinciascopio[i]<< " Cantidad de casos: "<<arregloprovincias[i]<<endl;
         
     }
 }
 
+
+/**
+ * casos_cui: Mostrará los datos de los casos que estuvieron en cuidados intensivos ordenados por fecha de cuidados intensivos,si fecha está indicada, se mostrarán solo las fechas mayores a esta.
+ * @tparam fileName Nombre del Archivo .csv (debe estar en la misma carpeta que el .exe)
+ * @tparam prov Valor introducido por el usuario equivale a la fecha a partir de las cuales se van a mostrar los datos.
+ */
 void casos_cui(string fileName, string prov){
     
     int colsOfInterest[] = {0, 2, 3, 12, 13, 14, 17, 20}; // [17] PROV.ID - [20] CASOS.CONFIRM - //   0, 2, 3, 12, 13, 14
     int nColumns = sizeof(colsOfInterest) / sizeof(colsOfInterest[0]);
          
-
+    int  fecha_base=fechas(prov);
+    
     fstream fin;
     fin.open("./" + fileName, ios::in);
 
     vector<string> row;
+    Pila<string> listadaatos;
+    Pila<int> valor_fecha;
+    string* miarray= new string[row.size()]; ////asd
     string line, word;
     int total=-1;
+    
     while (getline(fin, line))
     {
-        string filaa="";
-        total++;
+        string filaa=" ";
+        int  lafecha;
+        
         row.clear();
         stringstream s(line);
         while (getline(s, word, ','))
@@ -601,52 +662,76 @@ void casos_cui(string fileName, string prov){
             row.push_back(word);
         }
 
-        
-        if (fecha(prov,row[13]))
-        {  
-            for (int i = 0; i < 24; i++){    //Columna de Provincias
-                filaa+=row[i]; 
-            } 
-            //acaa  se agrega  la piila 
-                                      
+        if(row[13]!="NA"){   
+            try
+            {
+                lafecha=fechas(row[13]);
+
+                if (fecha_base<lafecha )
+                {  
+                    
+                    for (int i = 0; i < row.size(); i++){    //Columna de Provincias
+                        filaa+=row[i]+" "; 
+                    } 
+                    total++;
+                    listadaatos.push(filaa);
+                    valor_fecha.push(lafecha);
+                                         
+                }
+                
+            }
+            catch(...)
+            {
+                
+            }   
         }
     }
-    int valor=0;
-    for (int i = 0; i < 100; i++){
-            if(prov==to_string(i))
-            {
-                valor=i;
-                
-                break;
-            }
-        }
+   
+    if (total==-1){
+        cout<<"Ningun caso cui";
+        return;
+    }
+    int* valor_fechaarr= new int[total];
+    string* listadaatosarr= new string[total];
+    for (int i = 0; i < total; i++){
+
+        valor_fechaarr[i]=valor_fecha.pop();
+
+        listadaatosarr[i]=listadaatos.pop();
+
+    }
     
-    quickSort(arregloprovincias,arregloprovinciascopio, 0, 23);
+    quickSort(valor_fechaarr,listadaatosarr, 0, total-1);
     
     cout <<endl<<"Provincias ordenadas por casos: " <<endl<<endl;
-    for (int i = 23; i > 23-valor; i--){ //signos re-invertidos
-        cout <<Provincias_nombre(arregloprovinciascopio[i])<< " Cantidad de casos: "<<arregloprovincias[i]<<endl;
+    for (int i = total-1; i > 0; i--){ 
+
+        cout <<listadaatosarr[i] <<endl<<endl;
         
     }
 }
 
+/**
+ * casos_edad: Mostrará los datos de los casos donde la edad sea ‘años’ (ordenados por nombre de provincia).
+ * @tparam fileName Nombre del Archivo .csv (debe estar en la misma carpeta que el .exe)
+ * @tparam prov Valor introducido por el usuario equivale a la edad a partir de las cuales se van a mostrar los datos ordenados por provincia.
+ */
 void casos_edad(string fileName, string prov){
     
     int colsOfInterest[] = {0, 2, 3, 12, 13, 14, 17, 20}; // [17] PROV.ID - [20] CASOS.CONFIRM - //   0, 2, 3, 12, 13, 14
     int nColumns = sizeof(colsOfInterest) / sizeof(colsOfInterest[0]);
-    int      arregloprovincias[]={0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //25
-    int arregloprovinciascopio[]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22}; //25
-
+    Pila<string> listadaatos;
     fstream fin;
     fin.open("./" + fileName, ios::in);
 
     vector<string> row;
     string line, word;
-    int total=-1;
+    int total=0;
     while (getline(fin, line))
     {
-        total++;
+        
         row.clear();
+        string filaa="";
         stringstream s(line);
         while (getline(s, word, ','))
         {
@@ -663,70 +748,49 @@ void casos_edad(string fileName, string prov){
 
         
         if (row[20].compare("Confirmado") == 0 || total==0)
-        {   
-            /*int dato,valor;                         //Columna de Provincias
-            for (int i = 0; i < 100; i++){
-                if(row[2]==to_string(i))
-                {
-                    valor=i;
-                    break;
-                }
-            }
-            for (int i = 0; i < 100; i++){
-                if(prov==to_string(i))
-                {
-                    dato=i;
-                    break;
-                }
-            }*/
-            
+        {      
             if (row[2] == prov)
             { 
-                
-                arregloprovincias[Provincias_identado(row[5])]++; 
+                for (int i = 0; i < row.size(); i++){    //Columna de Provincias
+                        filaa+=row[i]+" "; 
+                    } 
+                listadaatos.push(filaa);
+                listadaatos.push(row[5]);
+                total++;
+                //arregloprovincias[Provincias_identado(row[5])]+="\n"+filaa; 
                  
             }
                
         }
     }
-    int valor=0;
-    for (int i = 0; i < 100; i++){
-            if(prov==to_string(i))
-            {
-                valor=i;
-                
-                break;
+    if (total==-1){
+        cout<<"Ningun caso cui";
+        return;
+    }
+    
+    string* listadaatospila= new string[total];
+    string* listadaatosarr= new string[total];
+    
+    for (int i = 0; i < total; i++){
+        
+        listadaatospila[i]= listadaatos.pop();
+        
+        listadaatosarr[i]= listadaatos.pop();
+    }
+    int valor;
+    stringstream valorr(prov);
+    valorr  >>valor;
+    cout <<endl<<"Datos de edad igual a "<<prov<< " ordenadas por Provincias:"<<endl;
+    for (int i = 0; i < 23; i++){ 
+        string nombre=Alfabetico(i);
+        cout << nombre  <<": "<<endl;
+        for(int j = 0; j < total; j++){ 
+            if(listadaatospila[j]==nombre){  //evitaa  imprimir muertes =0
+                cout << listadaatosarr[ j ]<<endl;
             }
         }
-    cout <<endl<<"Provincias ordenadas por casos de edad igual a "<<prov<<" :"<<endl;
-    for (int i = 0; i < 23; i++){ //signos re-invertidos
-        string nombre=Alfabetico(i);
-        if(arregloprovincias[ Provincias_identado(nombre) ]!=0){  
-            cout << nombre  <<": "<<arregloprovincias[ Provincias_identado(nombre) ]<<endl;
-        }
     }
 }
-
-
-
-void exploreHeaders(string fileName)
-{
-    
-    fstream fin;
-    
-    fin.open("./" + fileName, ios::in);
-    
-    string headers, header;
-    getline(fin, headers);
-
-    stringstream s(headers);
-    while (getline(s, header, ','))
-    {
-        cout << header << endl;
-    }
-    
-}
-
 
 int main(int argc, char **argv)
 {
@@ -735,25 +799,14 @@ int main(int argc, char **argv)
     {
         cout << "Argumento " << i << ": " << argv[i] << endl;
         
-        
-
-    /*
-        if(strcmp(argv[i], "-file") == 0){
-            cout << "Nombre del Archivo: " << argv[i+1] << endl;
-            //exploreHeaders(argv[i]);
-            exploreCSV(argv[i+1]);
-            break;
-        }
-    */
 
         if(strcmp(argv[i], "-file") == 0){
             cout << "Nombre del Archivo: " << argv[i+1] << endl; 
-            //exploreCSV(argv[i+1]);
-            //break;
+
         }
 
         if(strcmp(argv[i+2], "-estad") == 0){   
-            exploreCSV(argv[i+1]);                       
+            estad(argv[i+1]);                       
             break;
         }
         
@@ -780,21 +833,28 @@ int main(int argc, char **argv)
         }
         
         if(strcmp(argv[i+2], "-casos_edad") == 0){  
-            casos_edad(argv[i+1], argv[i+3]);
             try{
                 casos_edad(argv[i+1], argv[i+3]);
                 break;
              }
-             catch(...){                     // De esta forma el usuario al ingresar mal la cantidad de provincias, imprime todas las provincias.
-                cout<<"\n\n\t\t No se a introducido una edad.";
+             catch(...){                     // De esta forma el usuario al ingresar mal la cantidad de años no se ejecuta nada.
+                cout<<"\n\n\t\t No se a introducido una edad valida.\n\n";
                 break;
              }
             }
         if(strcmp(argv[i+2], "-casos_cui") == 0){  
-            casos_edad(argv[i+1], argv[i+3]);  
             
-            break;
+            try{
+                casos_cui(argv[i+1], argv[i+3]);
+                break;
+             }
+             catch(...){                     // De esta forma el usuario al ingresar mal la cantidad de años no se ejecuta nada.
+                cout<<"\n\n\t\t No se a introducido una Fecha o la misma no pose un formato valido se utilizara 1001-03-02 como fecha.\n\n";
+                casos_cui(argv[i+1], "1001-03-02");
+                break;
+             
             }
+        }
     }
     return 0;
 }
